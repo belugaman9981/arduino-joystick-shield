@@ -1,107 +1,43 @@
-import serial
-import pydirectinput
-import time
+const int JOY_X = A0;
+const int JOY_Y = A1;
 
-# CHANGE THIS TO YOUR ARDUINO COM PORT
-PORT = "COM3"
+const int BUTTON_A = 2;
+const int BUTTON_B = 3;
+const int BUTTON_C = 4;
+const int BUTTON_D = 5;
+const int BUTTON_E = 6;
+const int JOY_BUTTON = 7;
 
-arduino = serial.Serial(PORT, 115200, timeout=1)
+void setup() {
+  Serial.begin(115200);
 
-time.sleep(2)
+  pinMode(BUTTON_A, INPUT_PULLUP);
+  pinMode(BUTTON_B, INPUT_PULLUP);
+  pinMode(BUTTON_C, INPUT_PULLUP);
+  pinMode(BUTTON_D, INPUT_PULLUP);
+  pinMode(BUTTON_E, INPUT_PULLUP);
+  pinMode(JOY_BUTTON, INPUT_PULLUP);
+}
 
-pydirectinput.PAUSE = 0
+void loop() {
+  int x = analogRead(JOY_X);
+  int y = analogRead(JOY_Y);
 
-held = set()
+  Serial.print(x);
+  Serial.print(",");
+  Serial.print(y);
+  Serial.print(",");
+  Serial.print(!digitalRead(BUTTON_A));
+  Serial.print(",");
+  Serial.print(!digitalRead(BUTTON_B));
+  Serial.print(",");
+  Serial.print(!digitalRead(BUTTON_C));
+  Serial.print(",");
+  Serial.print(!digitalRead(BUTTON_D));
+  Serial.print(",");
+  Serial.print(!digitalRead(BUTTON_E));
+  Serial.print(",");
+  Serial.println(!digitalRead(JOY_BUTTON));
 
-def hold(key):
-    if key not in held:
-        pydirectinput.keyDown(key)
-        held.add(key)
-
-def release(key):
-    if key in held:
-        pydirectinput.keyUp(key)
-        held.remove(key)
-
-def update_key(key, pressed):
-    if pressed:
-        hold(key)
-    else:
-        release(key)
-
-print("Arduino game controller running!")
-print("CTRL+C to stop")
-
-while True:
-    try:
-        line = arduino.readline().decode(errors="ignore").strip()
-
-        if not line:
-            continue
-
-        parts = line.split(",")
-
-        if len(parts) != 8:
-            continue
-
-        x = int(parts[0])
-        y = int(parts[1])
-
-        buttonA = int(parts[2])
-        buttonB = int(parts[3])
-        buttonC = int(parts[4])
-        buttonD = int(parts[5])
-        buttonE = int(parts[6])
-        joystickButton = int(parts[7])
-
-        # ----------------------
-        # JOYSTICK -> WASD
-        # ----------------------
-
-        DEAD_LOW = 350
-        DEAD_HIGH = 670
-
-        # LEFT / RIGHT
-        update_key("a", x < DEAD_LOW)
-        update_key("d", x > DEAD_HIGH)
-
-        # UP / DOWN
-        update_key("w", y < DEAD_LOW)
-        update_key("s", y > DEAD_HIGH)
-
-        # ----------------------
-        # BUTTONS
-        # ----------------------
-
-        update_key("space", buttonA)
-        update_key("e", buttonB)
-        update_key("shift", joystickButton)
-
-        # Mouse attack
-        if buttonC:
-            pydirectinput.mouseDown(button="left")
-        else:
-            pydirectinput.mouseUp(button="left")
-
-        # Mouse use / place
-        if buttonD:
-            pydirectinput.mouseDown(button="right")
-        else:
-            pydirectinput.mouseUp(button="right")
-
-        update_key("esc", buttonE)
-
-    except KeyboardInterrupt:
-        break
-
-    except Exception as e:
-        print(e)
-
-# Release everything when program closes
-for key in list(held):
-    pydirectinput.keyUp(key)
-
-pydirectinput.mouseUp(button="left")
-pydirectinput.mouseUp(button="right")
-
-arduino.close()
+  delay(15);
+}
