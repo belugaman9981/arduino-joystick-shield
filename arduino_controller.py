@@ -1,14 +1,13 @@
 import serial
 import time
 
-PORT = "COM3"   # CHANGE THIS
+PORT = "COM11"
 BAUD = 9600
 
 print(f"Opening {PORT}...")
 
 arduino = serial.Serial(PORT, BAUD, timeout=1)
 
-# Arduino often resets when serial opens
 time.sleep(2)
 
 print("Connected.")
